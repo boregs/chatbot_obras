@@ -5,6 +5,7 @@ import random as rnd
 mensagem_intro_primeira_vez = "Olá, sou o ObrasBot, um assistente virtual para ajudar você a encontrar informações sobre as obras e suas pendencias. Como posso ajudar hoje?"
 mensagem_intro_retorno = ["Olá novamente! Vejo que precisa do meu serviço de novo!. Como posso ajudar hoje?", "Opa opa!, Precisa dos meus serviços de novo? Estou aqui para ajudar! Do que você precisa?"]
 
+#codigo para gerar uma mesnagem do zap com botões de opções
 def gerar_resposta_chatbot(pergunta):
     pergunta = pergunta.lower()
 
