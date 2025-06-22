@@ -1,39 +1,33 @@
 import pandas as pd
 import django as django
-import random as rnd
+import matplotlib.pyplot as plt
 
-mensagem_intro_primeira_vez = "Olá, sou o ObrasBot, um assistente virtual para ajudar você a encontrar informações sobre as obras e suas pendencias. Como posso ajudar hoje?"
-mensagem_intro_retorno = ["Olá novamente! Vejo que precisa do meu serviço de novo!. Como posso ajudar hoje?", "Opa opa!, Precisa dos meus serviços de novo? Estou aqui para ajudar! Do que você precisa?"]
+mensagem_intro = "Olá, sou o ObrasBot, seu assistente virtual para ajudar você a encontrar informações sobre as obras e suas pendencias. Como posso ajudar hoje?"
+df = pd.read_excel('obras.xlsx') #pode ser "obras" em maiusuculo, nao lembro
 
-def gerar_resposta_chatbot(pergunta):
-    pergunta = pergunta.lower()
+def print_obras_pendentes(caminho_arquivo_excel, nome_aba, inicio_linha, fim_linha, inicio_coluna, fim_coluna, caminho_saida_imagem):
+    df = pd.read_excel(caminho_arquivo_excel, sheet_name=nome_aba, header=inicio_linha-1, usecols=f"{inicio_coluna}:{fim_coluna}")
+    df = df.iloc[inicio_linha-1:fim_linha]
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(df.index, df.iloc[:, 0], marker='o')
+    plt.title('Obras Pendentes')
+    plt.xlabel('Índice')
+    plt.ylabel('Valores')
+    plt.grid(True)
+    plt.savefig(caminho_saida_imagem)
+    plt.close()
 
-    if "menu" in pergunta or "opções" in pergunta:
-        # Sinaliza que uma mensagem com botões deve ser enviada
-        return {
-            "type": "quick_reply",
-            "text": (mensagem_intro_primeira_vez),
-            "buttons": [
-                {"title": "Serviços", "payload": "servicos"},
-                {"title": "Suporte", "payload": "suporte"},
-                {"title": "Falar com Atendente", "payload": "atendente"}
-            ]
-        }
-    elif "servicos" in pergunta:
-        return "Oferecemos desenvolvimento web, consultoria de IA e automação."
-    elif "suporte" in pergunta:
-        return "Por favor, descreva seu problema e entraremos em contato."
-    elif "atendente" in pergunta:
-        return "Certo! Por favor, aguarde enquanto conecto você a um de nossos atendentes."
-    elif "olá" in pergunta or "oi" in pergunta:
-        return "Olá! Como vai você?"
-    elif "como você está" in pergunta:
-        return "Eu sou um programa, então não tenho sentimentos, mas obrigado por perguntar!"
-    elif "seu nome" in pergunta:
-        return "Meu nome é Chatbot Simples."
-    elif "ajuda" in pergunta:
-        return "Posso te ajudar com perguntas básicas ou apenas conversar. Que tal digitar 'menu'?"
+def buscar_obras_pendentes():
+    obras_pendentes = df[df['Status'].isin(['NÃO', 'PARCIAL'])]
+    if obras_pendentes.empty:
+        return "Não há obras pendentes no momento."
     else:
-        return "Desculpe, não entendi. Você pode reformular ou perguntar algo diferente?"
-
-gerar_resposta_chatbot("menu")
+        return obras_pendentes.to_dict(orient='records')
+    
+def buscar_obra_especifica(codigo_obra):
+    obra = df[df['IPSP '] == codigo_obra]
+    if obra.empty:
+        return "Obra não encontrada."
+    else:
+        return obra.to_dict(orient='records')[0]  # Retorna a primeira ocorrência como dicionário
